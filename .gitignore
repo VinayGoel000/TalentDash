@@ -1,28 +1,54 @@
 # dependencies
 node_modules/
 
-# build output
+# nextjs
 .next/
-dist/
 out/
+dist/
 
-# prisma
-prisma/migrations/
-
-# environment files
+# environment
 .env
 .env.local
-.env.production
 .env.development
-.env.*.local
+.env.production
 .env.test.local
+.env.*.local
+*.db
 
 # logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 
-# system files
+# prisma
+prisma/dev.db
+prisma/dev.db-journal
+
+# os files
 .DS_Store
 Thumbs.db
+
+# vercel
+.vercel/
+
+# typescript
+*.tsbuildinfo
+
+# coverage
+coverage/
+
+# editor
+.vscode/
+.idea/
+
+# cache
+.cache/
+.turbo/
+
+# local uploads
+uploads/
+
+# temporary files
+tmp/
+temp/
