@@ -49,7 +49,13 @@ const toBigIntAmount = (value: number | string | undefined, fallback = 0n) => {
 const toNumber = (value: number | string | undefined) =>
   typeof value === 'string' ? Number(value) : value;
 
-const serializeSalary = (salary: Awaited<ReturnType<typeof prisma.salary.create>>) => ({
+type SalaryWithCompany = Prisma.SalaryGetPayload<{
+  include: {
+    company: true;
+  };
+}>;
+
+const serializeSalary = (salary: SalaryWithCompany) => ({
   ...salary,
   id: salary.id,
   company_id: salary.company_id,
@@ -148,6 +154,7 @@ export async function POST(request: Request) {
   const total_compensation = baseSalary + bonus + stock;
   const role = body.role.trim();
   const location = body.location.trim();
+  const confidenceScoreValue = body.confidence_score as number | string;
 
   const company =
     (await prisma.company.findFirst({
@@ -204,7 +211,7 @@ export async function POST(request: Request) {
       stock,
       total_compensation,
       source: body.source,
-      confidence_score: new Prisma.Decimal(body.confidence_score.toString()),
+      confidence_score: new Prisma.Decimal(confidenceScoreValue.toString()),
       is_verified: body.is_verified ?? false,
       submitted_at: now,
     },

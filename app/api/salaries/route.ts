@@ -22,9 +22,13 @@ const parseOptionalNumber = (value: string | null) => {
 
 const normalizeText = (value: string) => value.trim().toLowerCase();
 
-const serializeSalary = (
-  salary: Awaited<ReturnType<typeof prisma.salary.findMany>>[number],
-) => ({
+type SalaryWithCompany = Prisma.SalaryGetPayload<{
+  include: {
+    company: true;
+  };
+}>;
+
+const serializeSalary = (salary: SalaryWithCompany) => ({
   ...salary,
   base_salary: salary.base_salary.toString(),
   bonus: salary.bonus.toString(),
@@ -63,13 +67,11 @@ export async function GET(request: Request) {
     return jsonError('Invalid currency');
   }
 
-  const where: Prisma.SalaryWhereInput = {
-    AND: [],
-  };
+  const andConditions: Prisma.SalaryWhereInput[] = [];
 
   if (company) {
     const normalizedCompany = normalizeText(company);
-    where.AND?.push({
+    andConditions.push({
       company: {
         OR: [
           { normalized_name: normalizedCompany },
@@ -81,35 +83,35 @@ export async function GET(request: Request) {
   }
 
   if (role) {
-    where.AND?.push({
+    andConditions.push({
       role: { contains: role, mode: 'insensitive' },
     });
   }
 
   if (location) {
-    where.AND?.push({
+    andConditions.push({
       location: { contains: location, mode: 'insensitive' },
     });
   }
 
   if (level) {
-    where.AND?.push({ level: level as Level });
+    andConditions.push({ level: level as Level });
   }
 
   if (currency) {
-    where.AND?.push({ currency: currency as Currency });
+    andConditions.push({ currency: currency as Currency });
   }
 
   if (verified !== null) {
     if (verified === 'true' || verified === 'false') {
-      where.AND?.push({ is_verified: verified === 'true' });
+      andConditions.push({ is_verified: verified === 'true' });
     } else {
       return jsonError('Invalid verified filter');
     }
   }
 
   if (minSalary !== undefined || maxSalary !== undefined) {
-    where.AND?.push({
+    andConditions.push({
       total_compensation: {
         gte: minSalary !== undefined ? BigInt(Math.trunc(minSalary)) : undefined,
         lte: maxSalary !== undefined ? BigInt(Math.trunc(maxSalary)) : undefined,
@@ -119,7 +121,7 @@ export async function GET(request: Request) {
 
   if (search && search.trim()) {
     const q = search.trim();
-    where.AND?.push({
+    andConditions.push({
       OR: [
         {
           role: {
@@ -154,6 +156,9 @@ export async function GET(request: Request) {
       ],
     });
   }
+
+  const where: Prisma.SalaryWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
 
   const orderBy =
     sort === 'salary_asc'
