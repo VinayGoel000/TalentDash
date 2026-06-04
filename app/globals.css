@@ -1,6 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: Inter, system-ui, sans-serif;
+  --color-primary: #ff5a5f;
+  --color-deep-text: #222222;
+  --color-body-text: #484848;
+  --color-muted-text: #717171;
+  --color-surface: #ffffff;
+  --color-app-bg: #f7f7f7;
+  --color-border: #ebebeb;
+  --color-success: #008a05;
+  --color-warning: #ffb400;
+  --color-error: #d93025;
+  --color-hover: #f2f2f2;
+}
 
 :root {
   color-scheme: light;
@@ -12,7 +25,7 @@ html {
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, sans-serif;
+  font-family: var(--font-sans);
   background: #f7f7f7;
   color: #222222;
 }
