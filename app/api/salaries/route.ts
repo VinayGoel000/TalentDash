@@ -47,7 +47,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
 
   const page = Math.max(1, parseInteger(url.searchParams.get('page'), 1));
-  const limit = Math.min(100, Math.max(1, parseInteger(url.searchParams.get('limit'), 20)));
+  const limit = Math.min(100, Math.max(1, parseInteger(url.searchParams.get('limit'), 25)));
   const company = url.searchParams.get('company');
   const role = url.searchParams.get('role');
   const location = url.searchParams.get('location');
@@ -56,7 +56,7 @@ export async function GET(request: Request) {
   const minSalary = parseOptionalNumber(url.searchParams.get('minSalary'));
   const maxSalary = parseOptionalNumber(url.searchParams.get('maxSalary'));
   const verified = url.searchParams.get('verified');
-  const sort = url.searchParams.get('sort') ?? 'salary_desc';
+  const sort = url.searchParams.get('sort') ?? 'date_desc';
   const search = url.searchParams.get('search');
 
   if (level && !levelValues.has(level as Level)) {
@@ -161,15 +161,25 @@ export async function GET(request: Request) {
     andConditions.length > 0 ? { AND: andConditions } : {};
 
   const orderBy =
-    sort === 'salary_asc'
+    sort === 'total_comp_asc'
       ? { total_compensation: 'asc' as const }
-      : sort === 'newest'
-        ? { submitted_at: 'desc' as const }
-        : sort === 'oldest'
-          ? { submitted_at: 'asc' as const }
-          : sort === 'confidence_desc'
-            ? { confidence_score: 'desc' as const }
-            : { total_compensation: 'desc' as const };
+      : sort === 'total_comp_desc'
+        ? { total_compensation: 'desc' as const }
+        : sort === 'date_desc'
+          ? { submitted_at: 'desc' as const }
+          : sort === 'date_asc'
+            ? { submitted_at: 'asc' as const }
+            : sort === 'salary_asc'
+              ? { total_compensation: 'asc' as const }
+              : sort === 'salary_desc'
+                ? { total_compensation: 'desc' as const }
+                : sort === 'newest'
+                  ? { submitted_at: 'desc' as const }
+                  : sort === 'oldest'
+                    ? { submitted_at: 'asc' as const }
+                    : sort === 'confidence_desc'
+                      ? { confidence_score: 'desc' as const }
+                      : { submitted_at: 'desc' as const };
 
   const skip = (page - 1) * limit;
 
@@ -187,10 +197,12 @@ export async function GET(request: Request) {
   ]);
 
   return NextResponse.json({
-    total,
-    page,
-    limit,
-    totalPages: Math.max(1, Math.ceil(total / limit)),
     data: rows.map(serializeSalary),
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+    },
   });
 }

@@ -1,30 +1,34 @@
 import Link from 'next/link';
-import { Container } from '@/components/ui/container';
+import { Container } from '@/components/ui/Container';
+import { Button } from '@/components/ui/Button';
 
 const navLinks = [
-  { href: '/', label: 'Home' },
+  { href: '/companies', label: 'Companies' },
   { href: '/salaries', label: 'Salaries' },
+  { href: '/compare', label: 'Compare' },
+  { href: '/tools', label: 'Tools' },
 ];
 
 export function Navbar() {
   return (
-    <header className="sticky top-0 z-50 border-b border-[#EBEBEB] bg-white/95 backdrop-blur">
-      <Container className="flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="text-lg font-bold tracking-tight text-[#222222]">
-          TalentDash
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <Container className="flex h-16 items-center justify-between gap-6">
+        <Link href="/" className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-sm font-semibold text-white">TD</span>
+          <span className="text-sm font-semibold tracking-tight text-slate-900">TalentDash</span>
         </Link>
 
-        <nav className="flex items-center gap-2 sm:gap-3">
+        <nav className="hidden items-center gap-1 md:flex">
           {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="rounded-full px-3 py-2 text-sm font-medium text-[#484848] transition hover:bg-[#F2F2F2] hover:text-[#222222]"
-            >
+            <Link key={link.href} href={link.href} className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900">
               {link.label}
             </Link>
           ))}
         </nav>
+
+        <Button href="/salaries" className="px-4">
+          Submit Salary
+        </Button>
       </Container>
     </header>
   );

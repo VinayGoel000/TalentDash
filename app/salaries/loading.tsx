@@ -1,35 +1,17 @@
-import { Container } from '@/components/ui/container';
+import { Container } from '@/components/ui/Container';
 
 function SkeletonRow() {
   return (
     <tr className="animate-pulse border-b border-[#EBEBEB]">
-      <td className="px-4 py-4">
-        <div className="h-4 w-32 rounded-full bg-[#EBEBEB]" />
-      </td>
-      <td className="px-4 py-4">
-        <div className="h-4 w-40 rounded-full bg-[#EBEBEB]" />
-      </td>
-      <td className="px-4 py-4">
-        <div className="h-4 w-24 rounded-full bg-[#EBEBEB]" />
-      </td>
-      <td className="px-4 py-4">
-        <div className="h-4 w-16 rounded-full bg-[#EBEBEB]" />
-      </td>
-      <td className="px-4 py-4">
-        <div className="h-4 w-20 rounded-full bg-[#EBEBEB]" />
-      </td>
-      <td className="px-4 py-4">
-        <div className="ml-auto h-4 w-24 rounded-full bg-[#EBEBEB]" />
-      </td>
-      <td className="px-4 py-4">
-        <div className="ml-auto h-4 w-28 rounded-full bg-[#EBEBEB]" />
-      </td>
-      <td className="px-4 py-4">
-        <div className="ml-auto h-4 w-16 rounded-full bg-[#EBEBEB]" />
-      </td>
-      <td className="px-4 py-4">
-        <div className="mx-auto h-6 w-20 rounded-full bg-[#EBEBEB]" />
-      </td>
+      <td className="px-4 py-4"><div className="h-4 w-32 rounded-full bg-[#EBEBEB]" /></td>
+      <td className="px-4 py-4"><div className="h-4 w-40 rounded-full bg-[#EBEBEB]" /></td>
+      <td className="px-4 py-4"><div className="h-4 w-24 rounded-full bg-[#EBEBEB]" /></td>
+      <td className="px-4 py-4"><div className="h-4 w-16 rounded-full bg-[#EBEBEB]" /></td>
+      <td className="px-4 py-4"><div className="h-4 w-20 rounded-full bg-[#EBEBEB]" /></td>
+      <td className="px-4 py-4"><div className="ml-auto h-4 w-24 rounded-full bg-[#EBEBEB]" /></td>
+      <td className="px-4 py-4"><div className="ml-auto h-4 w-28 rounded-full bg-[#EBEBEB]" /></td>
+      <td className="px-4 py-4"><div className="ml-auto h-4 w-16 rounded-full bg-[#EBEBEB]" /></td>
+      <td className="px-4 py-4"><div className="mx-auto h-6 w-20 rounded-full bg-[#EBEBEB]" /></td>
     </tr>
   );
 }
@@ -60,33 +42,15 @@ export default function Loading() {
         <table className="min-w-full divide-y divide-[#EBEBEB]">
           <thead className="bg-[#F7F7F7]">
             <tr>
-              <th className="px-4 py-4 text-left">
-                <div className="h-3 w-20 rounded-full bg-[#EBEBEB]" />
-              </th>
-              <th className="px-4 py-4 text-left">
-                <div className="h-3 w-16 rounded-full bg-[#EBEBEB]" />
-              </th>
-              <th className="px-4 py-4 text-left">
-                <div className="h-3 w-16 rounded-full bg-[#EBEBEB]" />
-              </th>
-              <th className="px-4 py-4 text-left">
-                <div className="h-3 w-16 rounded-full bg-[#EBEBEB]" />
-              </th>
-              <th className="px-4 py-4 text-left">
-                <div className="h-3 w-20 rounded-full bg-[#EBEBEB]" />
-              </th>
-              <th className="px-4 py-4 text-right">
-                <div className="ml-auto h-3 w-24 rounded-full bg-[#EBEBEB]" />
-              </th>
-              <th className="px-4 py-4 text-right">
-                <div className="ml-auto h-3 w-28 rounded-full bg-[#EBEBEB]" />
-              </th>
-              <th className="px-4 py-4 text-right">
-                <div className="ml-auto h-3 w-24 rounded-full bg-[#EBEBEB]" />
-              </th>
-              <th className="px-4 py-4 text-center">
-                <div className="mx-auto h-3 w-20 rounded-full bg-[#EBEBEB]" />
-              </th>
+              <th className="px-4 py-4 text-left"><div className="h-3 w-20 rounded-full bg-[#EBEBEB]" /></th>
+              <th className="px-4 py-4 text-left"><div className="h-3 w-16 rounded-full bg-[#EBEBEB]" /></th>
+              <th className="px-4 py-4 text-left"><div className="h-3 w-16 rounded-full bg-[#EBEBEB]" /></th>
+              <th className="px-4 py-4 text-left"><div className="h-3 w-16 rounded-full bg-[#EBEBEB]" /></th>
+              <th className="px-4 py-4 text-left"><div className="h-3 w-20 rounded-full bg-[#EBEBEB]" /></th>
+              <th className="px-4 py-4 text-right"><div className="ml-auto h-3 w-24 rounded-full bg-[#EBEBEB]" /></th>
+              <th className="px-4 py-4 text-right"><div className="ml-auto h-3 w-28 rounded-full bg-[#EBEBEB]" /></th>
+              <th className="px-4 py-4 text-right"><div className="ml-auto h-3 w-24 rounded-full bg-[#EBEBEB]" /></th>
+              <th className="px-4 py-4 text-center"><div className="mx-auto h-3 w-20 rounded-full bg-[#EBEBEB]" /></th>
             </tr>
           </thead>
           <tbody>

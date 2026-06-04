@@ -71,6 +71,7 @@ model Salary {
   company            Company  @relation(fields: [company_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([company_id, level, location])
+  @@index([company_id, total_compensation])
   @@index([total_compensation])
   @@index([submitted_at])
   @@index([location, level])
