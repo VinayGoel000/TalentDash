@@ -6,7 +6,12 @@
 
 import Link from 'next/link';
 import { LevelBadge } from './LevelBadge';
-import { formatSalaryWithCurrency, type Currency } from '@/lib/currency-config';
+import { convertSalaryAmount, type Currency } from '@/lib/currency-config';
+import { getSortUrl } from '@/lib/salary-query';
+import {
+  formatOptionalSalary,
+  formatRecordTotalCompensation,
+} from '@/lib/salary-display';
 import type { SalaryRecord } from '@/types/salary';
 
 interface SalaryTableProps {
@@ -14,31 +19,47 @@ interface SalaryTableProps {
   displayCurrency: Currency;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  queryString?: string;
 }
 
-// Convert salary to display currency if needed
-function getSalaryInCurrency(salary: number, originalCurrency: Currency, displayCurrency: Currency): number {
-  if (originalCurrency === displayCurrency) return salary;
-  
-  // Simple conversion: 1 USD = 83 INR
-  const rate = 83;
-  if (originalCurrency === 'INR' && displayCurrency === 'USD') {
-    return Math.round(salary / rate);
-  } else if (originalCurrency === 'USD' && displayCurrency === 'INR') {
-    return Math.round(salary * rate);
-  }
-  return salary;
+function SortableHeader({
+  label,
+  field,
+  sortBy,
+  sortOrder,
+  queryString,
+  align = 'left',
+}: {
+  label: string;
+  field: string;
+  sortBy: string;
+  sortOrder: 'asc' | 'desc';
+  queryString: string;
+  align?: 'left' | 'right';
+}) {
+  const isActive = sortBy === field;
+  const alignClass = align === 'right' ? 'text-right' : 'text-left';
+
+  return (
+    <th className={`px-6 py-4 ${alignClass}`}>
+      <a
+        href={getSortUrl(queryString, field, sortBy, sortOrder)}
+        className={`inline-flex items-center gap-1 hover:text-slate-900 ${isActive ? 'text-slate-900' : ''}`}
+      >
+        {label}
+        {isActive ? <span className="text-[10px]">{sortOrder === 'asc' ? '▲' : '▼'}</span> : null}
+      </a>
+    </th>
+  );
 }
 
-// Format salary or show dash if zero
-function formatSalaryCell(value: number, currency: Currency): string {
-  if (value === 0 || !value) {
-    return '—';
-  }
-  return formatSalaryWithCurrency(value, currency);
-}
-
-export function SalaryTable({ records, displayCurrency }: SalaryTableProps) {
+export function SalaryTable({
+  records,
+  displayCurrency,
+  sortBy = 'total_compensation',
+  sortOrder = 'desc',
+  queryString = '',
+}: SalaryTableProps) {
   if (records.length === 0) {
     return null;
   }
@@ -46,46 +67,59 @@ export function SalaryTable({ records, displayCurrency }: SalaryTableProps) {
   return (
     <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200">
+        <table className="min-w-full table-fixed divide-y divide-slate-200">
           <thead className="bg-slate-50">
             <tr className="text-xs font-semibold uppercase tracking-wider text-slate-700">
-              <th className="px-6 py-4 text-left">Company</th>
-              <th className="px-6 py-4 text-left">Role</th>
+              <SortableHeader label="Company" field="company" sortBy={sortBy} sortOrder={sortOrder} queryString={queryString} />
+              <SortableHeader label="Role" field="role" sortBy={sortBy} sortOrder={sortOrder} queryString={queryString} />
               <th className="px-6 py-4 text-left">Level</th>
-              <th className="px-6 py-4 text-left">Location</th>
-              <th className="px-6 py-4 text-left">Experience</th>
-              <th className="px-6 py-4 text-right">Base Salary</th>
+              <SortableHeader label="Location" field="location" sortBy={sortBy} sortOrder={sortOrder} queryString={queryString} />
+              <SortableHeader label="Experience" field="experience_years" sortBy={sortBy} sortOrder={sortOrder} queryString={queryString} />
+              <SortableHeader label="Base Salary" field="base_salary" sortBy={sortBy} sortOrder={sortOrder} queryString={queryString} align="right" />
               <th className="px-6 py-4 text-right">Stock</th>
-              <th className="px-6 py-4 text-right font-bold">Total Comp</th>
+              <SortableHeader label="Total Comp" field="total_compensation" sortBy={sortBy} sortOrder={sortOrder} queryString={queryString} align="right" />
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200">
             {records.map((record) => {
-              const baseSalaryInDisplay = getSalaryInCurrency(record.base_salary, record.currency as Currency, displayCurrency);
-              const stockInDisplay = getSalaryInCurrency(record.stock, record.currency as Currency, displayCurrency);
-              const totalCompInDisplay = getSalaryInCurrency(record.total_compensation, record.currency as Currency, displayCurrency);
+              const converted = {
+                base_salary: convertSalaryAmount(record.base_salary, record.currency as Currency, displayCurrency),
+                bonus: convertSalaryAmount(record.bonus, record.currency as Currency, displayCurrency),
+                stock: convertSalaryAmount(record.stock, record.currency as Currency, displayCurrency),
+                total_compensation: convertSalaryAmount(
+                  record.total_compensation,
+                  record.currency as Currency,
+                  displayCurrency,
+                ),
+              };
 
               return (
-                <tr key={record.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-semibold text-slate-900">
-                    <Link href={`/companies/${record.company_slug}`} className="hover:underline text-blue-600">
+                <tr key={record.id} className="transition-colors hover:bg-slate-50">
+                  <td className="max-w-[14rem] px-6 py-4 text-sm font-semibold text-slate-900">
+                    <Link
+                      href={`/companies/${record.company_slug}`}
+                      title={record.company}
+                      className="block truncate text-blue-600 hover:underline"
+                    >
                       {record.company}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-700">{record.role}</td>
+                  <td className="max-w-[12rem] truncate px-6 py-4 text-sm text-slate-700" title={record.role}>
+                    {record.role}
+                  </td>
                   <td className="px-6 py-4">
                     <LevelBadge level={record.level_standardized} />
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-700">{record.location}</td>
                   <td className="px-6 py-4 text-sm text-slate-700">{record.experience_years}y</td>
-                  <td className="px-6 py-4 text-right text-sm font-medium text-slate-900 tabular-nums">
-                    {formatSalaryCell(baseSalaryInDisplay, displayCurrency)}
+                  <td className="px-6 py-4 text-right text-sm font-medium tabular-nums text-slate-900">
+                    {formatOptionalSalary(converted.base_salary, displayCurrency)}
                   </td>
-                  <td className="px-6 py-4 text-right text-sm font-medium text-slate-900 tabular-nums">
-                    {formatSalaryCell(stockInDisplay, displayCurrency)}
+                  <td className="px-6 py-4 text-right text-sm font-medium tabular-nums text-slate-900">
+                    {formatOptionalSalary(converted.stock, displayCurrency)}
                   </td>
-                  <td className="px-6 py-4 text-right text-lg font-bold text-center tabular-nums" style={{ color: '#0369A1' }}>
-                    {formatSalaryWithCurrency(totalCompInDisplay, displayCurrency)}
+                  <td className="px-6 py-4 text-right text-lg font-bold tabular-nums" style={{ color: '#0369A1' }}>
+                    {formatRecordTotalCompensation(record, displayCurrency, converted)}
                   </td>
                 </tr>
               );

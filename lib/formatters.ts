@@ -7,6 +7,9 @@ const CURRENCY_DISPLAY: Record<string, string> = {
 
 export function formatCurrency(value: string | number | bigint, currency: string) {
   const amount = typeof value === 'bigint' ? Number(value) : Number(value);
+  if (!Number.isFinite(amount)) {
+    return '—';
+  }
   const locale = CURRENCY_DISPLAY[currency] ?? 'en-US';
 
   if (currency === 'INR') {

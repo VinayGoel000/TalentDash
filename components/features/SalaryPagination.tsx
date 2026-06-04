@@ -1,11 +1,4 @@
-/**
- * Salary Pagination Component
- * Handles page navigation and display of pagination info
- */
-
-'use client';
-
-import { useSearchParams } from 'next/navigation';
+import { getPageUrl } from '@/lib/salary-query';
 
 interface SalaryPaginationProps {
   currentPage: number;
@@ -13,6 +6,7 @@ interface SalaryPaginationProps {
   recordsPerPage: number;
   isFirstPage: boolean;
   isLastPage: boolean;
+  queryString: string;
 }
 
 export function SalaryPagination({
@@ -21,21 +15,13 @@ export function SalaryPagination({
   recordsPerPage,
   isFirstPage,
   isLastPage,
+  queryString,
 }: SalaryPaginationProps) {
-  const searchParams = useSearchParams();
-
-  const startRecord = (currentPage - 1) * recordsPerPage + 1;
+  const startRecord = totalRecords === 0 ? 0 : (currentPage - 1) * recordsPerPage + 1;
   const endRecord = Math.min(currentPage * recordsPerPage, totalRecords);
 
-  // Generate navigation URLs
-  const getPageUrl = (page: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('page', String(page));
-    return `?${params.toString()}`;
-  };
-
   return (
-    <div className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6">
+    <div className="flex min-h-[3.25rem] items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6">
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-slate-700">
@@ -44,28 +30,36 @@ export function SalaryPagination({
           </p>
         </div>
         <nav className="isolate inline-flex space-x-1 rounded-lg border border-slate-300 shadow-sm" aria-label="Pagination">
-          <a
-            href={getPageUrl(currentPage - 1)}
-            aria-disabled={isFirstPage}
-            className={`relative inline-flex items-center px-3 py-2 text-sm font-medium ${
-              isFirstPage
-                ? 'cursor-not-allowed bg-slate-50 text-slate-400'
-                : 'text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50'
-            }`}
-          >
-            Previous
-          </a>
-          <a
-            href={getPageUrl(currentPage + 1)}
-            aria-disabled={isLastPage}
-            className={`relative inline-flex items-center px-3 py-2 text-sm font-medium ${
-              isLastPage
-                ? 'cursor-not-allowed bg-slate-50 text-slate-400'
-                : 'text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50'
-            }`}
-          >
-            Next
-          </a>
+          {isFirstPage ? (
+            <span
+              aria-disabled
+              className="relative inline-flex cursor-not-allowed items-center bg-slate-50 px-3 py-2 text-sm font-medium text-slate-400"
+            >
+              Previous
+            </span>
+          ) : (
+            <a
+              href={getPageUrl(queryString, currentPage - 1)}
+              className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50"
+            >
+              Previous
+            </a>
+          )}
+          {isLastPage ? (
+            <span
+              aria-disabled
+              className="relative inline-flex cursor-not-allowed items-center bg-slate-50 px-3 py-2 text-sm font-medium text-slate-400"
+            >
+              Next
+            </span>
+          ) : (
+            <a
+              href={getPageUrl(queryString, currentPage + 1)}
+              className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-300 hover:bg-slate-50"
+            >
+              Next
+            </a>
+          )}
         </nav>
       </div>
     </div>

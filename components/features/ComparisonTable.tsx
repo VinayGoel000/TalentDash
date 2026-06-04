@@ -4,24 +4,17 @@
  */
 
 import { LevelBadge } from './LevelBadge';
-import { formatSalaryWithCurrency, type Currency } from '@/lib/currency-config';
+import { convertSalaryAmount, type Currency } from '@/lib/currency-config';
+import {
+  formatOptionalSalary,
+  formatRecordTotalCompensation,
+} from '@/lib/salary-display';
 import { calculateDelta, formatDelta, getDeltaColor, getHigherTCRecord } from '@/lib/compare-utils';
 import type { SalaryRecord } from '@/types/salary';
 
 interface ComparisonTableProps {
   recordA: SalaryRecord;
   recordB: SalaryRecord;
-}
-
-function getSalaryInCurrency(salary: number, originalCurrency: Currency, displayCurrency: Currency): number {
-  if (originalCurrency === displayCurrency) return salary;
-  const rate = 83;
-  if (originalCurrency === 'INR' && displayCurrency === 'USD') {
-    return Math.round(salary / rate);
-  } else if (originalCurrency === 'USD' && displayCurrency === 'INR') {
-    return Math.round(salary * rate);
-  }
-  return salary;
 }
 
 function getDeltaColorClass(color: 'green' | 'red' | 'neutral'): string {
@@ -42,10 +35,10 @@ export function ComparisonTable({ recordA, recordB }: ComparisonTableProps) {
   // Convert record B to display currency if different
   const recordBInDisplayCurrency: SalaryRecord = {
     ...recordB,
-    base_salary: getSalaryInCurrency(recordB.base_salary, recordB.currency as Currency, displayCurrency),
-    bonus: getSalaryInCurrency(recordB.bonus, recordB.currency as Currency, displayCurrency),
-    stock: getSalaryInCurrency(recordB.stock, recordB.currency as Currency, displayCurrency),
-    total_compensation: getSalaryInCurrency(recordB.total_compensation, recordB.currency as Currency, displayCurrency),
+    base_salary: convertSalaryAmount(recordB.base_salary, recordB.currency as Currency, displayCurrency),
+    bonus: convertSalaryAmount(recordB.bonus, recordB.currency as Currency, displayCurrency),
+    stock: convertSalaryAmount(recordB.stock, recordB.currency as Currency, displayCurrency),
+    total_compensation: convertSalaryAmount(recordB.total_compensation, recordB.currency as Currency, displayCurrency),
   };
 
   // Determine TC winner
@@ -67,8 +60,12 @@ export function ComparisonTable({ recordA, recordB }: ComparisonTableProps) {
             {/* Company */}
             <tr>
               <td className="px-4 py-3 text-sm font-medium text-slate-700">Company</td>
-              <td className="px-4 py-3 text-sm text-slate-900 font-semibold">{recordA.company}</td>
-              <td className="px-4 py-3 text-sm text-slate-900 font-semibold">{recordB.company}</td>
+              <td className="max-w-[12rem] truncate px-4 py-3 text-sm font-semibold text-slate-900" title={recordA.company}>
+                {recordA.company}
+              </td>
+              <td className="max-w-[12rem] truncate px-4 py-3 text-sm font-semibold text-slate-900" title={recordB.company}>
+                {recordB.company}
+              </td>
               <td className="px-4 py-3 text-sm text-slate-600">—</td>
             </tr>
 
@@ -116,10 +113,10 @@ export function ComparisonTable({ recordA, recordB }: ComparisonTableProps) {
             <tr>
               <td className="px-4 py-3 text-sm font-medium text-slate-700">Base Salary</td>
               <td className="px-4 py-3 text-sm font-medium text-slate-900">
-                {formatSalaryWithCurrency(recordA.base_salary, displayCurrency)}
+                {formatOptionalSalary(recordA.base_salary, displayCurrency)}
               </td>
               <td className="px-4 py-3 text-sm font-medium text-slate-900">
-                {formatSalaryWithCurrency(recordBInDisplayCurrency.base_salary, displayCurrency)}
+                {formatOptionalSalary(recordBInDisplayCurrency.base_salary, displayCurrency)}
               </td>
               <td className="px-4 py-3 text-sm font-medium">
                 {(() => {
@@ -134,10 +131,10 @@ export function ComparisonTable({ recordA, recordB }: ComparisonTableProps) {
             <tr>
               <td className="px-4 py-3 text-sm font-medium text-slate-700">Bonus</td>
               <td className="px-4 py-3 text-sm font-medium text-slate-900">
-                {recordA.bonus === 0 ? '—' : formatSalaryWithCurrency(recordA.bonus, displayCurrency)}
+                {formatOptionalSalary(recordA.bonus, displayCurrency)}
               </td>
               <td className="px-4 py-3 text-sm font-medium text-slate-900">
-                {recordBInDisplayCurrency.bonus === 0 ? '—' : formatSalaryWithCurrency(recordBInDisplayCurrency.bonus, displayCurrency)}
+                {formatOptionalSalary(recordBInDisplayCurrency.bonus, displayCurrency)}
               </td>
               <td className="px-4 py-3 text-sm font-medium">
                 {(() => {
@@ -152,10 +149,10 @@ export function ComparisonTable({ recordA, recordB }: ComparisonTableProps) {
             <tr>
               <td className="px-4 py-3 text-sm font-medium text-slate-700">Stock</td>
               <td className="px-4 py-3 text-sm font-medium text-slate-900">
-                {recordA.stock === 0 ? '—' : formatSalaryWithCurrency(recordA.stock, displayCurrency)}
+                {formatOptionalSalary(recordA.stock, displayCurrency)}
               </td>
               <td className="px-4 py-3 text-sm font-medium text-slate-900">
-                {recordBInDisplayCurrency.stock === 0 ? '—' : formatSalaryWithCurrency(recordBInDisplayCurrency.stock, displayCurrency)}
+                {formatOptionalSalary(recordBInDisplayCurrency.stock, displayCurrency)}
               </td>
               <td className="px-4 py-3 text-sm font-medium">
                 {(() => {
@@ -169,16 +166,16 @@ export function ComparisonTable({ recordA, recordB }: ComparisonTableProps) {
             {/* Total Compensation */}
             <tr className="bg-slate-50">
               <td className="px-4 py-3 text-sm font-bold text-slate-900">Total Compensation</td>
-              <td className="px-4 py-3 text-base font-bold" style={{ color: '#0369A1' }}>
-                {formatSalaryWithCurrency(recordA.total_compensation, displayCurrency)}
+              <td className="px-4 py-3 text-base font-bold tabular-nums" style={{ color: '#0369A1' }}>
+                {formatRecordTotalCompensation(recordA, displayCurrency)}
                 {tcWinner === 'A' && (
                   <div className="mt-1 inline-block rounded-full border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
                     Higher TC
                   </div>
                 )}
               </td>
-              <td className="px-4 py-3 text-base font-bold" style={{ color: '#0369A1' }}>
-                {formatSalaryWithCurrency(recordBInDisplayCurrency.total_compensation, displayCurrency)}
+              <td className="px-4 py-3 text-base font-bold tabular-nums" style={{ color: '#0369A1' }}>
+                {formatRecordTotalCompensation(recordB, displayCurrency, recordBInDisplayCurrency)}
                 {tcWinner === 'B' && (
                   <div className="mt-1 inline-block rounded-full border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
                     Higher TC

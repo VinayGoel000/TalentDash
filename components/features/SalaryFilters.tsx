@@ -8,7 +8,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 interface SalaryFiltersProps {
   allCompanies: string[];
@@ -29,7 +29,7 @@ export function SalaryFilters({
   const searchParams = useSearchParams();
   
   const [searchText, setSearchText] = useState(searchParams.get('search') || '');
-  const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Get current filter values from URL
   const currentCompany = searchParams.get('company') || '';
@@ -45,24 +45,22 @@ export function SalaryFilters({
     (value: string) => {
       setSearchText(value);
       
-      if (searchTimeout) {
-        clearTimeout(searchTimeout);
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
       }
 
-      const timeout = setTimeout(() => {
+      searchTimeoutRef.current = setTimeout(() => {
         const params = new URLSearchParams(searchParams);
         if (value) {
           params.set('search', value);
-          params.set('page', '1'); // Reset to first page
+          params.set('page', '1');
         } else {
           params.delete('search');
         }
         router.push(`?${params.toString()}`);
       }, debounceMs);
-
-      setSearchTimeout(timeout);
     },
-    [searchParams, router, debounceMs, searchTimeout]
+    [searchParams, router, debounceMs]
   );
 
   // Handle filter changes
@@ -210,7 +208,7 @@ export function SalaryFilters({
           href="/salaries"
           className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none w-full"
         >
-          Clear all filters
+          Clear All Filters
         </Link>
       )}
     </div>

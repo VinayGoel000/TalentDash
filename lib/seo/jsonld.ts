@@ -3,8 +3,6 @@
  * Generate valid schema.org structured data for search engines
  */
 
-import type { SalaryRecord } from '@/types/salary';
-
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://talentdash.com';
 
 /**

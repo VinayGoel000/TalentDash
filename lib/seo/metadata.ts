@@ -28,7 +28,9 @@ export function generatePageMetadata(params: MetadataParams): Metadata {
   return {
     title: fullTitle,
     description: params.description,
-    canonical: canonicalUrl,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: params.title,
       description: params.description,
@@ -95,6 +97,17 @@ export function getCompanyMetadata(company: {
     title: `Salary Data at ${company.name}${salarySuffix}`,
     description,
     path: `/companies/${company.slug}`,
+  });
+}
+
+/**
+ * Companies directory metadata
+ */
+export function getCompaniesIndexMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'Companies | Explore Salary Data by Employer',
+    description: 'Browse technology companies with verified salary records. Open a company page to see compensation by role and level.',
+    path: '/companies',
   });
 }
 

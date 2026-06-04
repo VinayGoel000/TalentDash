@@ -10,6 +10,7 @@ import { getHomepageMetadata } from '@/lib/seo/metadata';
 import { generateOrganizationSchema, generateWebsiteSchema, serializeJsonLd } from '@/lib/seo/jsonld';
 
 export const metadata: Metadata = getHomepageMetadata();
+export const revalidate = 3600;
 
 type HomeSalaryRow = {
   id: string;
@@ -24,7 +25,9 @@ async function loadHomeData() {
   const headersList = await headers();
   const host = headersList.get('host') ?? 'localhost:3000';
   const protocol = headersList.get('x-forwarded-proto') ?? 'http';
-  const response = await fetch(`${protocol}://${host}/api/salaries?limit=5&sort=submitted_at_desc`, { cache: 'no-store' });
+  const response = await fetch(`${protocol}://${host}/api/salaries?limit=5&sort=submitted_at_desc`, {
+    next: { revalidate: 3600 },
+  });
   if (!response.ok) return { total: 0, data: [] as HomeSalaryRow[] };
   return response.json() as Promise<{ total: number; data: HomeSalaryRow[] }>;
 }
@@ -86,7 +89,7 @@ export default async function HomePage() {
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {featuredCompanies.map((company) => (
-                <Link key={company.slug} href="/salaries" className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-200 hover:shadow-sm">
+                <Link key={company.slug} href={`/companies/${company.slug}`} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-blue-200 hover:shadow-sm">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="font-medium text-slate-900">{company.name}</div>
@@ -118,7 +121,11 @@ export default async function HomePage() {
                 <tbody className="divide-y divide-slate-200">
                   {salaries.data.map((row) => (
                     <tr key={row.id}>
-                      <td className="px-4 py-3 text-sm font-medium text-slate-900">{row.company.name}</td>
+                      <td className="px-4 py-3 text-sm font-medium text-slate-900">
+                        <Link href={`/companies/${row.company.slug}`} className="hover:underline">
+                          {row.company.name}
+                        </Link>
+                      </td>
                       <td className="px-4 py-3 text-sm text-slate-600">{row.role}</td>
                       <td className="px-4 py-3 text-sm text-slate-600">{row.location}</td>
                       <td className="px-4 py-3 text-right text-sm font-medium text-slate-900">{formatCompensation(row.total_compensation, row.currency)}</td>

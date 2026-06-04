@@ -4,6 +4,7 @@ import { prisma } from '@/app/lib/db';
 import { generateCompanySlug, normalizeCompanyName } from '@/lib/company-normalizer';
 import { hasPotentialDuplicate } from '@/lib/duplicate-check';
 import { validateIngestPayload } from '@/lib/salary-validation';
+import { revalidateAfterIngest } from '@/lib/db/revalidate';
 
 const jsonError = (field: string, message: string, status = 400) =>
   NextResponse.json({ error: true, field, message }, { status });
@@ -100,6 +101,8 @@ export async function POST(request: Request) {
       company: true,
     },
   });
+
+  revalidateAfterIngest(company.slug);
 
   return NextResponse.json(
     {

@@ -6,7 +6,6 @@ const navLinks = [
   { href: '/companies', label: 'Companies' },
   { href: '/salaries', label: 'Salaries' },
   { href: '/compare', label: 'Compare' },
-  { href: '/tools', label: 'Tools' },
 ];
 
 export function Navbar() {

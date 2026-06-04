@@ -1,9 +1,16 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { Inter } from 'next/font/google';
 import { Footer } from '@/components/layout/Footer';
 import { Navbar } from '@/components/layout/Navbar';
 import { Container } from '@/components/ui/Container';
 import './globals.css';
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
   title: 'TalentDash',
@@ -16,8 +23,8 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="bg-[#F7F7F7] text-[#222222] antialiased">
+    <html lang="en" className={inter.variable}>
+      <body className={`${inter.className} bg-[#F7F7F7] text-[#222222] antialiased`}>
         <div className="min-h-screen">
           <Navbar />
           <main>

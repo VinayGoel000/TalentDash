@@ -1,66 +1,38 @@
-'use client';
-
-/**
- * Compare Page
- * Salary comparison tool allowing side-by-side analysis
- */
-
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { Suspense } from 'react';
 import { Container } from '@/components/ui/Container';
-import { CompareSelectors } from '@/components/features/CompareSelectors';
+import { CompareControls } from '@/components/features/CompareControls';
 import { ComparisonTable } from '@/components/features/ComparisonTable';
-import { MOCK_SALARY_DATA } from '@/lib/mock-data';
-import type { SalaryRecord } from '@/types/salary';
+import { getSalariesByIds, getSalariesForCompare } from '@/lib/db/salaries';
+import { buildCompareRecordOptions } from '@/lib/compare-options';
+import { getCanonicalUrl } from '@/lib/seo/metadata';
 
-export default function ComparePage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export const revalidate = 300;
 
-  // Get record IDs from URL
-  const s1 = searchParams.get('s1');
-  const s2 = searchParams.get('s2');
+interface SearchParams {
+  s1?: string;
+  s2?: string;
+}
 
-  // Find records
-  const recordA = useMemo(() => {
-    return s1 ? MOCK_SALARY_DATA.find((r) => r.id === s1) : null;
-  }, [s1]);
+export default async function ComparePage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const params = await searchParams;
+  const [allRecords, selectedRecords] = await Promise.all([
+    getSalariesForCompare(),
+    getSalariesByIds([params.s1, params.s2].filter((id): id is string => Boolean(id))),
+  ]);
 
-  const recordB = useMemo(() => {
-    return s2 ? MOCK_SALARY_DATA.find((r) => r.id === s2) : null;
-  }, [s2]);
-
-  // Handle record selection
-  const handleRecordAChange = useCallback(
-    (id: string) => {
-      const params = new URLSearchParams(searchParams);
-      if (id) {
-        params.set('s1', id);
-      } else {
-        params.delete('s1');
-      }
-      router.push(`?${params.toString()}`);
-    },
-    [searchParams, router]
-  );
-
-  const handleRecordBChange = useCallback(
-    (id: string) => {
-      const params = new URLSearchParams(searchParams);
-      if (id) {
-        params.set('s2', id);
-      } else {
-        params.delete('s2');
-      }
-      router.push(`?${params.toString()}`);
-    },
-    [searchParams, router]
-  );
+  const recordA = params.s1 ? selectedRecords.find((record) => record.id === params.s1) ?? null : null;
+  const recordB = params.s2 ? selectedRecords.find((record) => record.id === params.s2) ?? null : null;
+  const recordOptions = buildCompareRecordOptions(allRecords);
+  const shareUrl =
+    recordA && recordB ? getCanonicalUrl(`/compare?s1=${recordA.id}&s2=${recordB.id}`) : null;
 
   return (
     <Container className="py-8">
       <div className="space-y-8">
-        {/* Header */}
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500">/compare</p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Salary Comparison</h1>
@@ -69,33 +41,25 @@ export default function ComparePage() {
           </p>
         </div>
 
-        {/* Compare Controls */}
         <div>
           <h2 className="mb-4 text-lg font-semibold text-slate-900">Select Records</h2>
-          <CompareSelectors
-            recordA={recordA || null}
-            recordB={recordB || null}
-            onRecordAChange={handleRecordAChange}
-            onRecordBChange={handleRecordBChange}
-          />
+          <Suspense fallback={<div className="h-32 animate-pulse rounded-lg bg-slate-200" />}>
+            <CompareControls recordOptions={recordOptions} recordA={recordA} recordB={recordB} />
+          </Suspense>
         </div>
 
-        {/* Comparison Results */}
         {recordA && recordB ? (
           <div>
             <h2 className="mb-4 text-lg font-semibold text-slate-900">Comparison Results</h2>
             <ComparisonTable recordA={recordA} recordB={recordB} />
 
-            {/* Copy URL Helper */}
-            <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div className="mt-6 min-h-[5.5rem] rounded-lg border border-slate-200 bg-slate-50 p-4">
               <p className="text-sm font-medium text-slate-700">Share this comparison:</p>
-              <p className="mt-2 break-all font-mono text-xs text-slate-600">
-                {typeof window !== 'undefined' ? `${window.location.origin}/compare?s1=${recordA.id}&s2=${recordB.id}` : ''}
-              </p>
+              <p className="mt-2 break-all font-mono text-xs text-slate-600">{shareUrl}</p>
             </div>
           </div>
         ) : (
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-12 text-center">
+          <div className="min-h-[18rem] rounded-lg border border-slate-200 bg-slate-50 p-12 text-center">
             <svg className="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
                 strokeLinecap="round"
@@ -105,7 +69,9 @@ export default function ComparePage() {
               />
             </svg>
             <h3 className="mt-4 text-lg font-semibold text-slate-900">Select two records to compare</h3>
-            <p className="mt-2 text-sm text-slate-600">Choose a salary record from each dropdown to see the side-by-side comparison and delta analysis.</p>
+            <p className="mt-2 text-sm text-slate-600">
+              Choose a salary record from each dropdown to see the side-by-side comparison and delta analysis.
+            </p>
           </div>
         )}
       </div>

@@ -1,6 +1,13 @@
-import { Currency, Level, Prisma } from '@prisma/client';
+import { Currency, Level } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/app/lib/db';
+import { withSalariesCacheHeaders } from '@/lib/db/cache-headers';
+import {
+  buildSalaryOrderBy,
+  buildSalaryWhereInput,
+  serializeSalaryForApi,
+} from '@/lib/db/salaries';
+import type { SalarySearchParams } from '@/lib/salary-query';
 
 const levelValues = new Set(Object.values(Level));
 const currencyValues = new Set(Object.values(Currency));
@@ -20,44 +27,34 @@ const parseOptionalNumber = (value: string | null) => {
   return Number.isNaN(parsed) ? undefined : parsed;
 };
 
-const normalizeText = (value: string) => value.trim().toLowerCase();
-
-type SalaryWithCompany = Prisma.SalaryGetPayload<{
-  include: {
-    company: true;
-  };
-}>;
-
-const serializeSalary = (salary: SalaryWithCompany) => ({
-  ...salary,
-  base_salary: salary.base_salary.toString(),
-  bonus: salary.bonus.toString(),
-  stock: salary.stock.toString(),
-  total_compensation: salary.total_compensation.toString(),
-  confidence_score: salary.confidence_score.toString(),
-  submitted_at: salary.submitted_at.toISOString(),
-  company: {
-    ...salary.company,
-    created_at: salary.company.created_at.toISOString(),
-    updated_at: salary.company.updated_at.toISOString(),
-  },
-});
+const mapApiSortToPageSort = (sort: string) => {
+  switch (sort) {
+    case 'total_comp_asc':
+    case 'salary_asc':
+      return { sort: 'total_compensation', sortOrder: 'asc' as const };
+    case 'total_comp_desc':
+    case 'salary_desc':
+      return { sort: 'total_compensation', sortOrder: 'desc' as const };
+    case 'date_asc':
+    case 'oldest':
+      return { sort: 'submitted_at', sortOrder: 'asc' as const };
+    default:
+      return { sort: 'total_compensation', sortOrder: 'desc' as const };
+  }
+};
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
 
   const page = Math.max(1, parseInteger(url.searchParams.get('page'), 1));
   const limit = Math.min(100, Math.max(1, parseInteger(url.searchParams.get('limit'), 25)));
-  const company = url.searchParams.get('company');
-  const role = url.searchParams.get('role');
-  const location = url.searchParams.get('location');
   const level = url.searchParams.get('level');
   const currency = url.searchParams.get('currency');
   const minSalary = parseOptionalNumber(url.searchParams.get('minSalary'));
   const maxSalary = parseOptionalNumber(url.searchParams.get('maxSalary'));
   const verified = url.searchParams.get('verified');
-  const sort = url.searchParams.get('sort') ?? 'date_desc';
-  const search = url.searchParams.get('search');
+  const apiSort = url.searchParams.get('sort') ?? 'date_desc';
+  const mappedSort = mapApiSortToPageSort(apiSort);
 
   if (level && !levelValues.has(level as Level)) {
     return jsonError('Invalid level');
@@ -67,40 +64,20 @@ export async function GET(request: Request) {
     return jsonError('Invalid currency');
   }
 
-  const andConditions: Prisma.SalaryWhereInput[] = [];
+  const searchParams: SalarySearchParams = {
+    company: url.searchParams.get('company') ?? undefined,
+    role: url.searchParams.get('role') ?? undefined,
+    location: url.searchParams.get('location') ?? undefined,
+    level: level ?? undefined,
+    currency: currency ?? undefined,
+    search: url.searchParams.get('search') ?? undefined,
+    sort: mappedSort.sort,
+    sortOrder: mappedSort.sortOrder,
+    page: String(page),
+  };
 
-  if (company) {
-    const normalizedCompany = normalizeText(company);
-    andConditions.push({
-      company: {
-        OR: [
-          { normalized_name: normalizedCompany },
-          { name: { contains: company, mode: 'insensitive' } },
-          { slug: normalizeText(company).replace(/[^a-z0-9]+/g, '-') },
-        ],
-      },
-    });
-  }
-
-  if (role) {
-    andConditions.push({
-      role: { contains: role, mode: 'insensitive' },
-    });
-  }
-
-  if (location) {
-    andConditions.push({
-      location: { contains: location, mode: 'insensitive' },
-    });
-  }
-
-  if (level) {
-    andConditions.push({ level: level as Level });
-  }
-
-  if (currency) {
-    andConditions.push({ currency: currency as Currency });
-  }
+  const where = buildSalaryWhereInput(searchParams);
+  const andConditions = Array.isArray(where.AND) ? [...where.AND] : where.AND ? [where.AND] : [];
 
   if (verified !== null) {
     if (verified === 'true' || verified === 'false') {
@@ -119,90 +96,39 @@ export async function GET(request: Request) {
     });
   }
 
-  if (search && search.trim()) {
-    const q = search.trim();
-    andConditions.push({
-      OR: [
-        {
-          role: {
-            contains: q,
-            mode: 'insensitive',
-          },
-        },
-        {
-          location: {
-            contains: q,
-            mode: 'insensitive',
-          },
-        },
-        {
-          company: {
-            OR: [
-              {
-                name: {
-                  contains: q,
-                  mode: 'insensitive',
-                },
-              },
-              {
-                normalized_name: normalizeText(q),
-              },
-              {
-                slug: normalizeText(q).replace(/[^a-z0-9]+/g, '-'),
-              },
-            ],
-          },
-        },
-      ],
-    });
-  }
-
-  const where: Prisma.SalaryWhereInput =
-    andConditions.length > 0 ? { AND: andConditions } : {};
-
+  const finalWhere = andConditions.length > 0 ? { AND: andConditions } : {};
   const orderBy =
-    sort === 'total_comp_asc'
-      ? { total_compensation: 'asc' as const }
-      : sort === 'total_comp_desc'
-        ? { total_compensation: 'desc' as const }
-        : sort === 'date_desc'
-          ? { submitted_at: 'desc' as const }
-          : sort === 'date_asc'
-            ? { submitted_at: 'asc' as const }
-            : sort === 'salary_asc'
-              ? { total_compensation: 'asc' as const }
-              : sort === 'salary_desc'
-                ? { total_compensation: 'desc' as const }
-                : sort === 'newest'
-                  ? { submitted_at: 'desc' as const }
-                  : sort === 'oldest'
-                    ? { submitted_at: 'asc' as const }
-                    : sort === 'confidence_desc'
-                      ? { confidence_score: 'desc' as const }
-                      : { submitted_at: 'desc' as const };
+    apiSort === 'date_desc' || apiSort === 'newest' || apiSort === 'confidence_desc'
+      ? apiSort === 'confidence_desc'
+        ? { confidence_score: 'desc' as const }
+        : { submitted_at: 'desc' as const }
+      : apiSort === 'date_asc' || apiSort === 'oldest'
+        ? { submitted_at: 'asc' as const }
+        : buildSalaryOrderBy(mappedSort.sort, mappedSort.sortOrder);
 
   const skip = (page - 1) * limit;
 
   const [total, rows] = await prisma.$transaction([
-    prisma.salary.count({ where }),
+    prisma.salary.count({ where: finalWhere }),
     prisma.salary.findMany({
-      where,
+      where: finalWhere,
       orderBy,
       skip,
       take: limit,
-      include: {
-        company: true,
-      },
+      include: { company: true },
     }),
   ]);
 
-  return NextResponse.json({
-    data: rows.map(serializeSalary),
-    meta: {
-      total,
-      page,
-      limit,
-      totalPages: Math.max(1, Math.ceil(total / limit)),
+  return NextResponse.json(
+    {
+      data: rows.map(serializeSalaryForApi),
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.max(1, Math.ceil(total / limit)),
+      },
     },
-  });
+    withSalariesCacheHeaders(),
+  );
 }
