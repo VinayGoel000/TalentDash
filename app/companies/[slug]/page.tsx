@@ -15,8 +15,7 @@ export const revalidate = 3600;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const slugs = await getAllCompanySlugs();
-  return slugs.map((slug) => ({ slug }));
+  return [];
 }
 
 export async function generateMetadata({
