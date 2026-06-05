@@ -37,16 +37,6 @@ export function convertSalaryAmount(value: number, fromCurrency: Currency, toCur
   return value;
 }
 
-export function convertCurrency(value: number, fromCurrency: Currency, toCurrency: Currency): number {
-  if (fromCurrency === toCurrency) return value;
-  
-  // Convert to base currency (INR) first
-  const valueInINR = value * CURRENCY_CONFIG[fromCurrency].rate;
-  
-  // Convert from INR to target currency
-  return Math.round(valueInINR / CURRENCY_CONFIG[toCurrency].rate);
-}
-
 /**
  * Format a salary value with currency symbol (Indian numbering for INR)
  */

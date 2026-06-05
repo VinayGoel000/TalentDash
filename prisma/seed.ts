@@ -1,5 +1,4 @@
-import { Currency, Level, PrismaClient, Source } from '@prisma/client';
-import { Prisma } from '@prisma/client';
+import { Currency, Level, Prisma, PrismaClient, Source } from '@prisma/client';
 
 const prisma = new PrismaClient();
 

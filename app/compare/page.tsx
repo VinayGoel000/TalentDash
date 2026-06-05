@@ -27,8 +27,11 @@ export default async function ComparePage({
   const recordA = params.s1 ? selectedRecords.find((record) => record.id === params.s1) ?? null : null;
   const recordB = params.s2 ? selectedRecords.find((record) => record.id === params.s2) ?? null : null;
   const recordOptions = buildCompareRecordOptions(allRecords);
+  const isSameRecord = Boolean(recordA && recordB && recordA.id === recordB.id);
   const shareUrl =
-    recordA && recordB ? getCanonicalUrl(`/compare?s1=${recordA.id}&s2=${recordB.id}`) : null;
+    recordA && recordB && !isSameRecord
+      ? getCanonicalUrl(`/compare?s1=${recordA.id}&s2=${recordB.id}`)
+      : null;
 
   return (
     <Container className="py-8">
@@ -48,7 +51,22 @@ export default async function ComparePage({
           </Suspense>
         </div>
 
-        {recordA && recordB ? (
+        {recordA && recordB && isSameRecord ? (
+          <div className="min-h-[18rem] rounded-lg border border-amber-200 bg-amber-50 p-12 text-center">
+            <svg className="mx-auto h-12 w-12 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <h3 className="mt-4 text-lg font-semibold text-slate-900">Select two different records</h3>
+            <p className="mt-2 text-sm text-slate-600">
+              You picked the same salary record for both sides. Choose a different record for Record A or Record B to see a meaningful comparison.
+            </p>
+          </div>
+        ) : recordA && recordB ? (
           <div>
             <h2 className="mb-4 text-lg font-semibold text-slate-900">Comparison Results</h2>
             <ComparisonTable recordA={recordA} recordB={recordB} />

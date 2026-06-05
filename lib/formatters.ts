@@ -5,7 +5,7 @@ const CURRENCY_DISPLAY: Record<string, string> = {
   EUR: 'en-GB',
 };
 
-export function formatCurrency(value: string | number | bigint, currency: string) {
+function formatCurrency(value: string | number | bigint, currency: string) {
   const amount = typeof value === 'bigint' ? Number(value) : Number(value);
   if (!Number.isFinite(amount)) {
     return '—';
@@ -38,8 +38,4 @@ export function formatCurrency(value: string | number | bigint, currency: string
 
 export function formatCompensation(value: string | number | bigint, currency: string) {
   return formatCurrency(value, currency);
-}
-
-export function formatPercentage(value: string | number) {
-  return `${Math.round(Number(value) * 100)}%`;
 }

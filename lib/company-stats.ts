@@ -52,10 +52,6 @@ export function getCompanyStats(records: SalaryRecord[], slug: string): CompanyS
   };
 }
 
-export function getCompanySlugs(records: SalaryRecord[]): string[] {
-  return Array.from(new Set(records.map((record) => record.company_slug))).sort();
-}
-
 export interface CompanyIndexEntry {
   name: string;
   slug: string;

@@ -130,6 +130,6 @@ export function generateFAQSchema(faqs: Array<{ question: string; answer: string
 /**
  * Serialize JSON-LD for embedding in HTML
  */
-export function serializeJsonLd(schema: any): string {
+export function serializeJsonLd(schema: Record<string, unknown>): string {
   return JSON.stringify(schema);
 }
