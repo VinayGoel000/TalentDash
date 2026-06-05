@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Inter } from 'next/font/google';
 import { Footer } from '@/components/layout/Footer';
 import { Navbar } from '@/components/layout/Navbar';
-import { Container } from '@/components/ui/Container';
+import { Container } from '@/components/ui/container';
 import './globals.css';
 
 const inter = Inter({

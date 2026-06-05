@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Container } from '@/components/ui/Container';
+import { Container } from '@/components/ui/container';
 import { CompanyLogo } from '@/components/ui/CompanyLogo';
 import { LevelBadge } from '@/components/features/LevelBadge';
 import { getAllCompanySlugs, getCompanyPageStats } from '@/lib/db/companies';

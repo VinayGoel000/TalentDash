@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
-import { Container } from '@/components/ui/Container';
+import { Container } from '@/components/ui/container';
 import { SalaryTable } from '@/components/features/SalaryTable';
 import { SalaryFilters } from '@/components/features/SalaryFilters';
 import { SalaryPagination } from '@/components/features/SalaryPagination';

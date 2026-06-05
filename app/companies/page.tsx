@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Container } from '@/components/ui/Container';
+import { Container } from '@/components/ui/container';
 import { CompanyLogo } from '@/components/ui/CompanyLogo';
 import { Badge } from '@/components/ui/Badge';
 import { getCompanyIndexFromDb } from '@/lib/db/companies';

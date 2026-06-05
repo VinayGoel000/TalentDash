@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Container } from '@/components/ui/Container';
+import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/Button';
 
 const navLinks = [

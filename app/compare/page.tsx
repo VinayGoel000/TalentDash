@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Container } from '@/components/ui/Container';
+import { Container } from '@/components/ui/container';
 import { CompareControls } from '@/components/features/CompareControls';
 import { ComparisonTable } from '@/components/features/ComparisonTable';
 import { getSalariesByIds, getSalariesForCompare } from '@/lib/db/salaries';

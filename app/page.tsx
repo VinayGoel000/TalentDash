@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { headers } from 'next/headers';
 import type { Metadata } from 'next';
-import { Container } from '@/components/ui/Container';
+import { Container } from '@/components/ui/container';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
