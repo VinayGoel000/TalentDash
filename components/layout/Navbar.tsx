@@ -1,17 +1,35 @@
 import Link from 'next/link';
 import { Container } from '@/components/ui/container';
 import { MobileNav } from '@/components/layout/MobileNav';
+import { NavbarMenu } from '@/components/layout/NavbarMenu';
 
-const NAV_LINKS = [
+const PRIMARY_LINKS = [
   { href: '/companies', label: 'Companies' },
   { href: '/salaries', label: 'Salaries' },
-  { href: '/reviews', label: 'Reviews' },
-  { href: '/interviews', label: 'Interviews' },
-  { href: '/jobs', label: 'Jobs' },
-  { href: '/forum', label: 'Forum' },
-  { href: '/offers', label: 'Offers' },
-  { href: '/tools', label: 'Tools' },
-  { href: '/brands', label: 'Brands' },
+  { href: '/compare', label: 'Compare' },
+];
+
+const INSIGHTS_LINKS = [
+  { href: '/leaderboard', label: 'Leaderboard', description: 'Top paying companies' },
+  { href: '/locations', label: 'Locations', description: 'Markets ranked by data' },
+  { href: '/industries', label: 'Industries', description: 'Cross-sector insights' },
+  { href: '/trends', label: 'Trends', description: 'YoY salary movement' },
+];
+
+const TOOLS_LINKS = [
+  { href: '/tools/calculator', label: 'Salary calculator', description: 'Model base, bonus, equity' },
+  { href: '/tools/offer-analyzer', label: 'Offer analyzer', description: 'Compare to market' },
+  { href: '/tools/career-path', label: 'Career path', description: 'Levels, skills, comp' },
+  { href: '/tools/benchmark', label: 'Benchmarking', description: 'Where you rank' },
+];
+
+const COMMUNITY_LINKS = [
+  { href: '/forum', label: 'Forum', description: 'Trending discussions' },
+  { href: '/reviews', label: 'Reviews', description: 'Company sentiment' },
+  { href: '/interviews', label: 'Interviews', description: 'Real candidate reports' },
+  { href: '/jobs', label: 'Jobs', description: 'Featured openings' },
+  { href: '/offers', label: 'Offers', description: 'Anonymised offer letters' },
+  { href: '/brands', label: 'Brands', description: 'Featured employer profiles' },
 ];
 
 export function Navbar() {
@@ -27,7 +45,7 @@ export function Navbar() {
 
         <nav aria-label="Primary" className="hidden flex-1 justify-center lg:flex">
           <ul className="flex items-center gap-1">
-            {NAV_LINKS.map((link) => (
+            {PRIMARY_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
@@ -37,6 +55,15 @@ export function Navbar() {
                 </Link>
               </li>
             ))}
+            <li>
+              <NavbarMenu label="Insights" links={INSIGHTS_LINKS} />
+            </li>
+            <li>
+              <NavbarMenu label="Tools" links={TOOLS_LINKS} />
+            </li>
+            <li>
+              <NavbarMenu label="Community" links={COMMUNITY_LINKS} />
+            </li>
           </ul>
         </nav>
 
@@ -55,7 +82,12 @@ export function Navbar() {
           </Link>
         </div>
 
-        <MobileNav links={NAV_LINKS} />
+        <MobileNav
+          primary={PRIMARY_LINKS}
+          insights={INSIGHTS_LINKS}
+          tools={TOOLS_LINKS}
+          community={COMMUNITY_LINKS}
+        />
       </Container>
     </header>
   );

@@ -123,6 +123,160 @@ export function getCompareMetadata(): Metadata {
 }
 
 /**
+ * Reviews page metadata
+ */
+export function getReviewsMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'TalentDash Reviews | Company Culture & Workplace Insights',
+    description: 'Read honest employee reviews about culture, leadership, compensation and growth at top companies. Filter ratings by role, location and tenure.',
+    path: '/reviews',
+  });
+}
+
+/**
+ * Interviews page metadata
+ */
+export function getInterviewsMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'TalentDash Interviews | Real Interview Experiences & Questions',
+    description: 'Browse structured interview experiences from candidates across top companies. See loops, difficulty levels, questions and offer outcomes.',
+    path: '/interviews',
+  });
+}
+
+/**
+ * Jobs page metadata
+ */
+export function getJobsMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'TalentDash Jobs | Featured Roles at Top Companies',
+    description: 'Discover featured openings across engineering, product, design, data and GTM at the companies the TalentDash community trusts.',
+    path: '/jobs',
+  });
+}
+
+/**
+ * Forum page metadata
+ */
+export function getForumMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'TalentDash Community | Trending Career Discussions',
+    description: 'Join trending discussions on salaries, promotions, interviews, remote work and career growth with the TalentDash community.',
+    path: '/forum',
+  });
+}
+
+/**
+ * Offers page metadata
+ */
+export function getOffersMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'TalentDash Offers | Negotiation Outcomes & Compensation Letters',
+    description: 'Compare real offer letters, signing bonuses and counter-offer outcomes. Use proven negotiation playbooks to maximise your next package.',
+    path: '/offers',
+  });
+}
+
+/**
+ * Brands page metadata
+ */
+export function getBrandsMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'TalentDash Brands | Featured Employer Profiles & Industry Insights',
+    description: 'Explore featured employer brands across technology, fintech, e-commerce and more. See culture, headcount, perks and verified ratings.',
+    path: '/brands',
+  });
+}
+
+/**
+ * Leaderboard page metadata
+ */
+export function getLeaderboardMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'TalentDash Leaderboard | Top Paying Companies Ranked',
+    description: 'Live leaderboard of the top paying companies on TalentDash, ranked by verified median total compensation.',
+    path: '/leaderboard',
+  });
+}
+
+/**
+ * Locations page metadata
+ */
+export function getLocationsMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'TalentDash Locations | Popular Markets & Salary by City',
+    description: 'Explore the most popular hiring locations on TalentDash. Median comp, top roles and top employers in every market.',
+    path: '/locations',
+  });
+}
+
+/**
+ * Trends page metadata
+ */
+export function getTrendsMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'TalentDash Salary Trends | Year-over-Year Comp Movement',
+    description: 'Live salary trends across roles, levels and locations. Year-over-year deltas, 4-year CAGR and median total comp per series.',
+    path: '/trends',
+  });
+}
+
+/**
+ * Tools hub metadata
+ */
+export function getToolsHubMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'TalentDash Tools | Salary Calculator, Offer Analyzer, Career Path, Benchmarking',
+    description: 'Interactive compensation tools for every career decision. Salary calculator, offer analyzer, career path explorer and benchmarking.',
+    path: '/tools',
+  });
+}
+
+/**
+ * Calculator metadata
+ */
+export function getCalculatorMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'Salary Calculator | TalentDash',
+    description: 'Model base, bonus and equity scenarios. See your bracket, total comp and recommendations in real time.',
+    path: '/tools/calculator',
+  });
+}
+
+/**
+ * Offer analyzer metadata
+ */
+export function getOfferAnalyzerMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'Offer Analyzer | TalentDash',
+    description: 'Drop in your offer details and see how the package compares to the market for your level.',
+    path: '/tools/offer-analyzer',
+  });
+}
+
+/**
+ * Career path metadata
+ */
+export function getCareerPathMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'Career Path Explorer | TalentDash',
+    description: 'Visualise the typical engineering, product, data and design career paths. Median comp, responsibilities and skills at each level.',
+    path: '/tools/career-path',
+  });
+}
+
+/**
+ * Benchmark metadata
+ */
+export function getBenchmarkMetadata(): Metadata {
+  return generatePageMetadata({
+    title: 'Compensation Benchmarking | TalentDash',
+    description: 'See exactly where your package ranks against peers across company, role, level and location.',
+    path: '/tools/benchmark',
+  });
+}
+
+/**
  * Build canonical URL
  */
 export function getCanonicalUrl(path: string): string {

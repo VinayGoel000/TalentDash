@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { prisma } from '@/app/lib/db';
 import { HeroSection } from '@/components/home/HeroSection';
-import { StatsSection } from '@/components/home/StatsSection';
-import { InsightsSection } from '@/components/home/InsightsSection';
+import { TrustMetrics } from '@/components/home/TrustMetrics';
+import { CareerIntelligenceHub } from '@/components/home/CareerIntelligenceHub';
 import { ExploreCategoriesSection } from '@/components/home/ExploreCategoriesSection';
-import { CommunitySection } from '@/components/home/CommunitySection';
+import { CommunityPreview } from '@/components/home/CommunityPreview';
 import { SalaryInsightsSection } from '@/components/home/SalaryInsightsSection';
 import { getHomepageData } from '@/lib/db/homepage';
 import { getHomepageMetadata } from '@/lib/seo/metadata';
@@ -77,20 +77,19 @@ export default async function HomePage() {
         }}
       />
 
-      <StatsSection counts={data.counts} />
+      <TrustMetrics
+        totals={{
+          salaries: data.counts.salaries,
+          companies: data.counts.companies,
+          locations: data.counts.locations,
+        }}
+      />
 
-      <InsightsSection />
+      <CareerIntelligenceHub />
 
       <ExploreCategoriesSection />
 
-      <CommunitySection
-        recentSalaries={data.recentSalaries}
-        topCompanies={data.topPayingCompanies}
-        topRoles={data.topRoles.map((entry) => ({
-          role: entry.role,
-          sampleSize: entry.sampleSize,
-        }))}
-      />
+      <CommunityPreview />
 
       <SalaryInsightsSection
         topPayingCompanies={data.topPayingCompanies}

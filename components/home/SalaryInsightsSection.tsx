@@ -20,14 +20,6 @@ function maxOf<T>(items: T[], pick: (item: T) => number) {
   return items.reduce((acc, item) => Math.max(acc, pick(item)), 0);
 }
 
-function intensityClass(ratio: number) {
-  if (ratio >= 0.85) return 'bg-[#FF5A5F] text-white border-[#FF5A5F]';
-  if (ratio >= 0.65) return 'bg-[#FFB8BB] text-[#7A1F22] border-[#FFB8BB]';
-  if (ratio >= 0.45) return 'bg-[#FFD6D8] text-[#7A1F22] border-[#FFD6D8]';
-  if (ratio >= 0.25) return 'bg-[#FFEAEB] text-[#7A1F22] border-[#FFEAEB]';
-  return 'bg-[#FFF5F5] text-[#7A1F22] border-[#FFEAEB]';
-}
-
 export function SalaryInsightsSection({
   topPayingCompanies,
   topRoles,
@@ -37,7 +29,6 @@ export function SalaryInsightsSection({
   const maxCompanyTc = maxOf(topPayingCompanies, (item) => item.medianTotalCompensation);
   const maxRoleTc = maxOf(topRoles, (item) => item.medianTotalCompensation);
   const maxBandTc = maxOf(experienceBands, (item) => item.medianTotalCompensation);
-  const maxLocationTc = maxOf(topLocations, (item) => item.medianTotalCompensation);
 
   return (
     <section className="border-y border-[#EBEBEB] bg-white">
@@ -184,50 +175,68 @@ export function SalaryInsightsSection({
 
           <article className="rounded-2xl border border-[#EBEBEB] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:p-6">
             <header className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-[#222222] sm:text-lg">Salary heatmap</h3>
-              <Link href="/salaries" className="text-xs font-semibold text-[#FF5A5F] hover:text-[#e14d52]">
-                Filter by location
-              </Link>
+              <h3 className="text-base font-semibold text-[#222222] sm:text-lg">Global compensation heatmap</h3>
+              <span className="rounded-full bg-[#F0EBFE] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#6D3FD8]">
+                Coming soon
+              </span>
             </header>
             <p className="mt-1 text-xs text-[#717171]">
-              Median total compensation across the locations contributing the most data.
+              An interactive choropleth of median total compensation across countries and metros.
             </p>
-            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-              {topLocations.length === 0 ? (
-                <p className="col-span-full text-sm text-[#717171]">No location data available yet.</p>
-              ) : (
-                topLocations.map((entry) => {
-                  const ratio = maxLocationTc === 0 ? 0 : entry.medianTotalCompensation / maxLocationTc;
-                  return (
-                    <Link
-                      key={entry.location}
-                      href={`/salaries?location=${encodeURIComponent(entry.location)}`}
-                      className={`flex flex-col gap-1 rounded-xl border px-3 py-3 text-left transition hover:shadow-sm ${intensityClass(ratio)}`}
-                    >
-                      <span className="text-xs font-semibold uppercase tracking-wider opacity-80">
-                        {entry.location}
-                      </span>
-                      <span className="text-sm font-bold tabular-nums">
-                        {formatCompensation(entry.medianTotalCompensation, 'INR')}
-                      </span>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider opacity-70">
-                        {entry.sampleSize} records
-                      </span>
-                    </Link>
-                  );
-                })
-              )}
+
+            <div
+              className="mt-4 flex h-44 items-center justify-center overflow-hidden rounded-xl border border-dashed border-[#FFB8BB] bg-[#FFF7F5]"
+              aria-hidden="true"
+            >
+              <svg
+                viewBox="0 0 320 160"
+                className="h-full w-full"
+                preserveAspectRatio="xMidYMid meet"
+              >
+                <defs>
+                  <linearGradient id="heatmap-fade" x1="0" x2="1" y1="0" y2="0">
+                    <stop offset="0%" stopColor="#FFEFEF" />
+                    <stop offset="100%" stopColor="#FF5A5F" />
+                  </linearGradient>
+                </defs>
+                <g fill="url(#heatmap-fade)" opacity="0.45">
+                  <circle cx="60" cy="60" r="14" />
+                  <circle cx="100" cy="80" r="20" />
+                  <circle cx="160" cy="50" r="26" />
+                  <circle cx="200" cy="90" r="18" />
+                  <circle cx="240" cy="60" r="22" />
+                  <circle cx="120" cy="120" r="12" />
+                  <circle cx="180" cy="130" r="16" />
+                  <circle cx="260" cy="120" r="14" />
+                </g>
+                <g stroke="#FF5A5F" strokeOpacity="0.35" fill="none" strokeWidth="1.2">
+                  <path d="M0 100 Q 80 60 160 90 T 320 70" />
+                  <path d="M0 130 Q 90 100 170 120 T 320 110" />
+                </g>
+              </svg>
             </div>
-            <div className="mt-4 flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-[#717171]">
-              <span>Lower median</span>
-              <div className="mx-3 flex h-2 flex-1 overflow-hidden rounded-full">
-                <span className="flex-1 bg-[#FFF5F5]" />
-                <span className="flex-1 bg-[#FFEAEB]" />
-                <span className="flex-1 bg-[#FFD6D8]" />
-                <span className="flex-1 bg-[#FFB8BB]" />
-                <span className="flex-1 bg-[#FF5A5F]" />
-              </div>
-              <span>Higher median</span>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-[10px] font-semibold uppercase tracking-wider text-[#717171]">
+              <span>{topLocations.length} metros covered</span>
+              <Link
+                href="/salaries"
+                className="inline-flex items-center gap-1 text-[#FF5A5F] hover:text-[#e14d52]"
+              >
+                Explore locations
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-3 w-3"
+                >
+                  <path d="M3 8h10" />
+                  <path d="M9 4l4 4-4 4" />
+                </svg>
+              </Link>
             </div>
           </article>
         </div>
